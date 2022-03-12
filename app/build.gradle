@@ -1,0 +1,209 @@
+import static org.gradle.api.JavaVersion.VERSION_1_8
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'dagger.hilt.android.plugin'
+
+def dataProperties = new Properties()
+dataProperties.load(new FileInputStream(rootProject.file("../rappi-keys/data.properties")))
+
+def signinProperties = new Properties()
+signinProperties.load(new FileInputStream(rootProject.file("../rappi-keys/signin.properties")))
+
+android {
+    signingConfigs {
+        release {
+            keyAlias "${signinProperties['KeyAlias']}"
+            keyPassword "${signinProperties['KeyPassword']}"
+            storeFile file("${signinProperties['StoreFile']}")
+            storePassword "${signinProperties['StorePassword']}"
+        }
+    }
+
+    compileSdk 31
+    defaultConfig {
+        applicationId "com.rappi.android"
+        minSdk 23
+        targetSdk 31
+        versionCode rootProject.versionCode
+        versionName rootProject.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary true
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            debuggable false
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility VERSION_1_8
+        targetCompatibility VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+        useIR = true
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    flavorDimensions "services"
+    productFlavors {
+        prod {
+            dimension "services"
+
+            resValue "string", "app_name", "Rappi"
+            resValue "string", "account_type", "com.rappi.android"
+
+            buildConfigField("String", "DomainApi", "\"${dataProperties['DomainApi']}\"")
+            buildConfigField("String", "ApiKey", "\"${dataProperties['ApiKey']}\"")
+            buildConfigField("String", "GoogleApiKey", "\"${dataProperties['GoogleApiKey']}\"")
+        }
+        qa {
+            dimension "services"
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+
+            resValue "string", "app_name", "Rappi Debug"
+            resValue "string", "account_type", "com.rappi.android.debug"
+
+            buildConfigField("String", "DomainApi", "\"${dataProperties['DevDomainApi']}\"")
+            buildConfigField("String", "ApiKey", "\"${dataProperties['ApiKey']}\"")
+            buildConfigField("String", "GoogleApiKey", "\"${dataProperties['GoogleApiKey']}\"")
+        }
+        staging {
+            dimension "services"
+            applicationIdSuffix ".staging"
+            versionNameSuffix "-staging"
+
+            resValue "string", "app_name", "Rappi Staging"
+            resValue "string", "account_type", "com.rappi.android.staging"
+
+            buildConfigField("String", "DomainApi", "\"${dataProperties['StagingDomainApi']}\"")
+            buildConfigField("String", "ApiKey", "\"${dataProperties['ApiKey']}\"")
+            buildConfigField("String", "GoogleApiKey", "\"${dataProperties['GoogleApiKey']}\"")
+        }
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion rootProject.ext.composeVersion
+        kotlinCompilerVersion '1.5.21'
+    }
+
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+        kotlinOptions.freeCompilerArgs += ["-Xopt-in=kotlin.time.ExperimentalTime"]
+        kotlinOptions.freeCompilerArgs += ["-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"]
+        kotlinOptions.freeCompilerArgs += ["-Xopt-in=androidx.compose.animation.ExperimentalAnimationApi"]
+        kotlinOptions.freeCompilerArgs += ["-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi"]
+    }
+}
+
+dependencies {
+    implementation rootProject.kotlin
+    implementation rootProject.koinCore
+    implementation rootProject.koinViewModel
+    implementation rootProject.koinAndroid
+    implementation rootProject.koinScope
+
+    def testingDependencies = rootProject.ext.testingDependencies
+    testImplementation testingDependencies.junitTesting
+    androidTestImplementation testingDependencies.runner
+    androidTestImplementation testingDependencies.espresso
+    androidTestImplementation testingDependencies.composeUiTest
+    androidTestImplementation testingDependencies.composeUiTooling
+
+    def appDependencies = rootProject.ext.appDependencies
+    implementation appDependencies.core
+    implementation appDependencies.appcompat
+    implementation appDependencies.material
+    implementation appDependencies.constraintVersion
+
+    //Insets
+    implementation appDependencies.insets
+    implementation appDependencies.insetsFlow
+
+    //Startup
+    implementation appDependencies.startup
+
+    //Timber
+    implementation appDependencies.timber
+
+    //Landscapist
+    implementation appDependencies.landscapist
+
+    //Network
+    implementation appDependencies.sandwichNetwork
+
+    // Image loading
+    implementation appDependencies.coil
+
+    implementation appDependencies.accompanist
+
+    //Glide
+    implementation appDependencies.glide
+    implementation appDependencies.glideOkHttp3
+    kapt appDependencies.glideCompile
+
+    //Compose
+    implementation appDependencies.composeUi
+    implementation appDependencies.composeActivity
+    implementation appDependencies.composeUiTooling
+    implementation appDependencies.composeFoundation
+    implementation appDependencies.composeMaterial
+    implementation appDependencies.composeIconsCore
+    implementation appDependencies.composeIconsExtended
+    implementation appDependencies.composeLiveData
+    implementation appDependencies.composeRxJava
+    implementation appDependencies.composeRuntime
+    implementation appDependencies.composeNavigation
+    implementation appDependencies.composePaging
+    implementation appDependencies.boneToolbarCompose
+
+    //Lifecycle
+    implementation appDependencies.lifecycleExtensions
+    implementation appDependencies.lifecycleViewModel
+    implementation appDependencies.lifecycleRuntime
+
+    //Hilt
+    implementation appDependencies.dagger
+    kapt appDependencies.daggerCompiler
+    api appDependencies.daggerAndroid
+    api appDependencies.daggerSupport
+    kapt appDependencies.daggerProcessor
+    implementation appDependencies.daggerHilt
+    kapt appDependencies.daggerHiltCompiler
+
+    kapt appDependencies.daggerHiltCompilerK
+    implementation appDependencies.daggerHiltNavigation
+
+    //Room
+    implementation appDependencies.roomRuntime
+    implementation appDependencies.roomKtx
+    kapt appDependencies.roomCompiler
+
+    def dataDependencies = rootProject.ext.dataDependencies
+    implementation dataDependencies.retrofit
+    implementation dataDependencies.retrofitMoshi
+    implementation dataDependencies.retrofitGson
+    implementation dataDependencies.loggingInterceptor
+}
