@@ -1,7 +1,7 @@
-<h1 align="center">Rappi Test</h1>
+<h1 align="center">MovieApp</h1>
 
 <p align="center">
-Rappi Test is a small demo application based on modern Android tech stacks especially focus on Jetpack Compose UI using The Movie DB API. Also fetching data from the network and integrating persisted data in the database via repository pattern.
+MovieApp is a small demo application based on modern Android tech stacks especially focus on Jetpack Compose UI using The Movie DB API. Also fetching data from the network and integrating persisted data in the database via repository pattern.
 </p>
 </br>
 
