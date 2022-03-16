@@ -1,16 +1,15 @@
-import static org.gradle.api.JavaVersion.VERSION_1_8
-
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
+apply from: '../dependencies.gradle'
+
 def dataProperties = new Properties()
-dataProperties.load(new FileInputStream(rootProject.file("../rappi-keys/data.properties")))
+dataProperties.load(new FileInputStream(rootProject.file("../movie-keys/data.properties")))
 
 def signinProperties = new Properties()
-signinProperties.load(new FileInputStream(rootProject.file("../rappi-keys/signin.properties")))
+signinProperties.load(new FileInputStream(rootProject.file("../movie-keys/signin.properties")))
 
 android {
     signingConfigs {
@@ -22,17 +21,28 @@ android {
         }
     }
 
-    compileSdk 31
+    compileSdk versions.compileSdk
     defaultConfig {
-        applicationId "com.rappi.android"
-        minSdk 23
-        targetSdk 31
-        versionCode rootProject.versionCode
-        versionName rootProject.versionName
+        applicationId "com.movie.android"
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.compileSdk
+        versionCode versions.versionCode
+        versionName versions.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
+        }
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation" : "$projectDir/schemas".toString()]
+            }
+        }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["dagger.hilt.disableModulesHaveInstallInCheck"] = "true"
+            }
         }
     }
 
@@ -47,13 +57,21 @@ android {
         }
     }
 
+    lintOptions {
+        abortOnError false
+    }
+
     compileOptions {
-        sourceCompatibility VERSION_1_8
-        targetCompatibility VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion versions.composeVersion
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
         useIR = true
     }
 
@@ -61,13 +79,28 @@ android {
         compose true
     }
 
+    kapt {
+        correctErrorTypes = true
+    }
+
+    sourceSets {
+        test.assets.srcDirs += files("$projectDir/schemas".toString())
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+        }
+    }
+
     flavorDimensions "services"
     productFlavors {
         prod {
             dimension "services"
 
-            resValue "string", "app_name", "Rappi"
-            resValue "string", "account_type", "com.rappi.android"
+            resValue "string", "app_name", "MoviePlay"
+            resValue "string", "account_type", "com.movie.android"
 
             buildConfigField("String", "DomainApi", "\"${dataProperties['DomainApi']}\"")
             buildConfigField("String", "ApiKey", "\"${dataProperties['ApiKey']}\"")
@@ -78,8 +111,8 @@ android {
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
 
-            resValue "string", "app_name", "Rappi Debug"
-            resValue "string", "account_type", "com.rappi.android.debug"
+            resValue "string", "app_name", "MoviePlay Debug"
+            resValue "string", "account_type", "com.movie.android.debug"
 
             buildConfigField("String", "DomainApi", "\"${dataProperties['DevDomainApi']}\"")
             buildConfigField("String", "ApiKey", "\"${dataProperties['ApiKey']}\"")
@@ -90,23 +123,12 @@ android {
             applicationIdSuffix ".staging"
             versionNameSuffix "-staging"
 
-            resValue "string", "app_name", "Rappi Staging"
-            resValue "string", "account_type", "com.rappi.android.staging"
+            resValue "string", "app_name", "MoviePlay Staging"
+            resValue "string", "account_type", "com.movie.android.staging"
 
             buildConfigField("String", "DomainApi", "\"${dataProperties['StagingDomainApi']}\"")
             buildConfigField("String", "ApiKey", "\"${dataProperties['ApiKey']}\"")
             buildConfigField("String", "GoogleApiKey", "\"${dataProperties['GoogleApiKey']}\"")
-        }
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion rootProject.ext.composeVersion
-        kotlinCompilerVersion '1.5.21'
-    }
-
-    packagingOptions {
-        resources {
-            excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
 
@@ -115,95 +137,90 @@ android {
         kotlinOptions.freeCompilerArgs += ["-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"]
         kotlinOptions.freeCompilerArgs += ["-Xopt-in=androidx.compose.animation.ExperimentalAnimationApi"]
         kotlinOptions.freeCompilerArgs += ["-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi"]
+        kotlinOptions.freeCompilerArgs += ["-Xopt-in=androidx.compose.material.ExperimentalMaterialApi"]
     }
 }
 
 dependencies {
-    implementation rootProject.kotlin
-    implementation rootProject.koinCore
-    implementation rootProject.koinViewModel
-    implementation rootProject.koinAndroid
-    implementation rootProject.koinScope
+    // material
+    implementation "com.google.android.material:material:$versions.materialVersion"
 
-    def testingDependencies = rootProject.ext.testingDependencies
-    testImplementation testingDependencies.junitTesting
-    androidTestImplementation testingDependencies.runner
-    androidTestImplementation testingDependencies.espresso
-    androidTestImplementation testingDependencies.composeUiTest
-    androidTestImplementation testingDependencies.composeUiTooling
+    // compose
+    implementation "androidx.compose.ui:ui:$versions.composeVersion"
+    implementation "androidx.activity:activity-compose:$versions.activityVersion"
+    implementation "androidx.compose.material:material:$versions.composeVersion"
+    implementation "androidx.compose.material:material-icons-extended:$versions.composeVersion"
+    implementation "androidx.compose.foundation:foundation:$versions.composeVersion"
+    implementation "androidx.compose.foundation:foundation-layout:$versions.composeVersion"
+    implementation "androidx.compose.animation:animation:$versions.composeVersion"
+    implementation "androidx.compose.runtime:runtime:$versions.composeVersion"
+    implementation "androidx.compose.runtime:runtime-livedata:$versions.composeVersion"
+    implementation "androidx.navigation:navigation-compose:$versions.composeNavVersion"
+    implementation "androidx.compose.ui:ui-tooling:$versions.composeVersion"
+    implementation "androidx.constraintlayout:constraintlayout-compose:$versions.constraintVersion"
 
-    def appDependencies = rootProject.ext.appDependencies
-    implementation appDependencies.core
-    implementation appDependencies.appcompat
-    implementation appDependencies.material
-    implementation appDependencies.constraintVersion
+    // compose insets
+    implementation "com.google.accompanist:accompanist-insets:$versions.accompanistVersion"
+    implementation "com.google.accompanist:accompanist-flowlayout:$versions.accompanistVersion"
 
-    //Insets
-    implementation appDependencies.insets
-    implementation appDependencies.insetsFlow
+    implementation "io.coil-kt:coil-compose:$versions.coil"
 
-    //Startup
-    implementation appDependencies.startup
+    // architecture components
+    implementation "androidx.fragment:fragment-ktx:$versions.fragmentVersion"
+    implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$versions.lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$versions.lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.lifecycleVersion"
+    implementation "androidx.room:room-runtime:$versions.roomVersion"
+    implementation "androidx.room:room-ktx:$versions.roomVersion"
+    kapt "androidx.room:room-compiler:$versions.roomVersion"
+    testImplementation "androidx.arch.core:core-testing:$versions.archCompomentVersion"
 
-    //Timber
-    implementation appDependencies.timber
+    // hilt
+    implementation "com.google.dagger:hilt-android:$versions.hiltCoreVersion"
+    implementation "androidx.hilt:hilt-navigation-compose:$versions.hiltComposeNavigation"
+    kapt "com.google.dagger:hilt-compiler:$versions.hiltCoreVersion"
+    kapt "androidx.hilt:hilt-compiler:$versions.hiltVersion"
+    androidTestImplementation "com.google.dagger:hilt-android-testing:$versions.hiltCoreVersion"
+    kaptAndroidTest "com.google.dagger:hilt-compiler:$versions.hiltCoreVersion"
 
-    //Landscapist
-    implementation appDependencies.landscapist
+    // network
+    implementation "com.squareup.okhttp3:logging-interceptor:$versions.okhttpVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$versions.retrofitVersion"
+    testImplementation "com.squareup.okhttp3:mockwebserver:$versions.okhttpVersion"
 
-    //Network
-    implementation appDependencies.sandwichNetwork
+    // coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutinesVersion"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutinesVersion"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$versions.coroutinesVersion"
 
-    // Image loading
-    implementation appDependencies.coil
+    // swipeRefresh
+    implementation "com.google.accompanist:accompanist-swiperefresh:$versions.accompanistVersion"
 
-    implementation appDependencies.accompanist
+    // moshi
+    implementation "com.squareup.moshi:moshi:$versions.moshi"
+    implementation "com.squareup.moshi:moshi-adapters:$versions.moshi"
+    implementation "com.squareup.moshi:moshi-kotlin:$versions.moshi"
+    implementation "com.squareup.retrofit2:converter-moshi:$versions.converterMoshi"
 
-    //Glide
-    implementation appDependencies.glide
-    implementation appDependencies.glideOkHttp3
-    kapt appDependencies.glideCompile
+    // collapsing toolbar
+    implementation "me.onebone:toolbar-compose:$versions.collapsingVersion"
 
-    //Compose
-    implementation appDependencies.composeUi
-    implementation appDependencies.composeActivity
-    implementation appDependencies.composeUiTooling
-    implementation appDependencies.composeFoundation
-    implementation appDependencies.composeMaterial
-    implementation appDependencies.composeIconsCore
-    implementation appDependencies.composeIconsExtended
-    implementation appDependencies.composeLiveData
-    implementation appDependencies.composeRxJava
-    implementation appDependencies.composeRuntime
-    implementation appDependencies.composeNavigation
-    implementation appDependencies.composePaging
-    implementation appDependencies.boneToolbarCompose
+    implementation "com.github.skydoves:landscapist-coil:$versions.landscapistVersion"
+    implementation "com.google.accompanist:accompanist-coil:0.13.0"
 
-    //Lifecycle
-    implementation appDependencies.lifecycleExtensions
-    implementation appDependencies.lifecycleViewModel
-    implementation appDependencies.lifecycleRuntime
+    // sandwich
+    implementation "com.github.skydoves:sandwich:$versions.sandwichVersion"
 
-    //Hilt
-    implementation appDependencies.dagger
-    kapt appDependencies.daggerCompiler
-    api appDependencies.daggerAndroid
-    api appDependencies.daggerSupport
-    kapt appDependencies.daggerProcessor
-    implementation appDependencies.daggerHilt
-    kapt appDependencies.daggerHiltCompiler
-
-    kapt appDependencies.daggerHiltCompilerK
-    implementation appDependencies.daggerHiltNavigation
-
-    //Room
-    implementation appDependencies.roomRuntime
-    implementation appDependencies.roomKtx
-    kapt appDependencies.roomCompiler
-
-    def dataDependencies = rootProject.ext.dataDependencies
-    implementation dataDependencies.retrofit
-    implementation dataDependencies.retrofitMoshi
-    implementation dataDependencies.retrofitGson
-    implementation dataDependencies.loggingInterceptor
+    // unit test
+    testImplementation "junit:junit:$versions.junitVersion"
+    testImplementation "androidx.test:core:$versions.androidxTest"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$versions.mockitoKotlinVersion"
+    testImplementation "org.mockito:mockito-inline:$versions.mockitoInlineVersion"
+    testImplementation "app.cash.turbine:turbine:$versions.turbineVersion"
+    testImplementation "org.robolectric:robolectric:$versions.robolectricVersion"
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$versions.composeVersion"
+    androidTestImplementation "com.google.truth:truth:$versions.truthVersion"
+    androidTestImplementation "androidx.test.ext:junit:$versions.androidxTestJunit"
+    androidTestImplementation "com.android.support.test:runner:$versions.androidTestRunner"
 }

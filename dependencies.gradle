@@ -1,99 +1,66 @@
-ext {
-    kotlin          = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72"
-    koinCore        = "org.koin:koin-core:2.1.5"
-    koinViewModel   = "org.koin:koin-androidx-viewmodel:2.0.1"
-    koinAndroid     = "org.koin:koin-android:2.1.5"
-    koinScope       = "org.koin:koin-androidx-scope:2.1.5"
+ext.versions = [
+        minSdk               : 21,
+        compileSdk           : 31,
+        versionCode          : 1,
+        versionName          : '1.0.0',
 
-    versionCode     = 1
-    versionName     = "0.0.1"
+        gradleBuildTool      : '7.0.2',
+        kotlin               : '1.5.31',
 
-    composeVersion                  = '1.0.1'
+        // material
+        materialVersion      : '1.5.0-alpha02',
 
-    testingDependencies = [
-            runner              : "androidx.test:runner:1.1.0",
-            espresso            : "androidx.test.espresso:espresso-core:3.1.0",
-            junitTesting        : "junit:junit:4.12",
-            composeUiTest       : "androidx.compose.ui:ui-test-junit4:$composeVersion",
-            composeUiTooling    : "androidx.compose.ui:ui-tooling:$composeVersion"
-    ]
+        // compose
+        composeVersion       : '1.1.0-beta03',
+        constraintVersion    : '1.0.0-beta02',
+        activityVersion      : '1.3.0-rc02',
+        composeNavVersion    : '2.4.0-beta02',
 
-    constraintVersion               = '1.0.0-beta02'
-    glideVersion                    = '4.9.0'
-    roomVersion                     = '2.3.0'
-    sandwichVersion                 = '1.2.0'
-    timberVersion                   = '4.7.1'
-    landscapistVersion              = '1.3.7'
-    accompanistVersion              = '0.17.0'
+        // compose insets
+        accompanistVersion   : '0.20.0',
 
-    appDependencies = [
-            core                : "androidx.core:core-ktx:1.3.0",
-            appcompat           : "androidx.appcompat:appcompat:1.1.0",
-            material            : "com.google.android.material:material:1.3.0",
-            constraintVersion   : "androidx.constraintlayout:constraintlayout-compose:$constraintVersion",
+        // coil
+        coil                 : '1.3.2',
 
-            insets              : "com.google.accompanist:accompanist-insets:$accompanistVersion",
-            insetsFlow          : "com.google.accompanist:accompanist-flowlayout:$accompanistVersion",
+        // architecture components
+        fragmentVersion      : '1.3.6',
+        lifecycleVersion     : '2.2.0',
+        roomVersion          : '2.3.0',
+        archCompomentVersion : '2.1.0',
 
-            startup             : 'androidx.startup:startup-runtime:1.1.0',
+        // di
+        hiltCoreVersion      : '2.40.1',
+        hiltVersion          : '1.0.0',
+        hiltComposeNavigation: '1.0.0-alpha03',
 
-            timber              : "com.jakewharton.timber:timber:$timberVersion",
+        // network
+        retrofitVersion      : '2.9.0',
+        okhttpVersion        : '4.7.2',
 
-            landscapist         : "com.github.skydoves:landscapist-coil:$landscapistVersion",
+        // coroutines
+        coroutinesVersion    : '1.4.1',
 
-            coil                : "io.coil-kt:coil-compose:1.3.2",
+        // moshi
+        moshi                : '1.11.0',
+        converterMoshi       : '2.9.0',
 
-            accompanist         : "com.google.accompanist:accompanist-coil:0.13.0",
+        // landscapist
+        landscapistVersion   : '1.3.7',
 
-            glide               : "com.github.bumptech.glide:glide:$glideVersion",
-            glideCompile        : "com.github.bumptech.glide:compiler:$glideVersion",
-            glideOkHttp3        : "com.github.bumptech.glide:okhttp3-integration:$glideVersion",
+        // collapsing
+        collapsingVersion    : '2.3.3',
 
-            composeUi           : "androidx.compose.ui:ui:$composeVersion",
-            composeActivity     : "androidx.activity:activity-compose:$composeVersion",
-            composeUiTooling    : "androidx.compose.ui:ui-tooling:$composeVersion",
-            composeFoundation   : "androidx.compose.foundation:foundation:$composeVersion",
-            composeMaterial     : "androidx.compose.material:material:$composeVersion",
-            composeIconsCore    : "androidx.compose.material:material-icons-core:$composeVersion",
-            composeIconsExtended: "androidx.compose.material:material-icons-extended:$composeVersion",
-            composeLiveData     : "androidx.compose.runtime:runtime-livedata:$composeVersion",
-            composeRxJava       : "androidx.compose.runtime:runtime-rxjava2:$composeVersion",
-            composeRuntime      : "androidx.compose.runtime:runtime:$composeVersion",
-            composeNavigation   : "androidx.navigation:navigation-compose:2.4.0-alpha09",
-            composePaging       : "androidx.paging:paging-compose:1.0.0-alpha02",
+        // sandwich
+        sandwichVersion      : '1.2.0',
 
-            boneToolbarCompose  : "me.onebone:toolbar-compose:2.2.0",
-
-            lifecycleExtensions : "androidx.lifecycle:lifecycle-extensions:2.2.0",
-            lifecycleViewModel  : "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0",
-            lifecycleRuntime    : "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0",
-
-            dagger              : "com.google.dagger:dagger:2.38.1",
-            daggerCompiler      : "com.google.dagger:dagger-compiler:2.38.1",
-            daggerAndroid       : "com.google.dagger:dagger-android:2.37",
-            daggerSupport       : "com.google.dagger:dagger-android-support:2.37",
-            daggerProcessor     : "com.google.dagger:dagger-android-processor:2.37",
-            daggerHilt          : "com.google.dagger:hilt-android:2.38.1",
-            daggerHiltCompiler  : "com.google.dagger:hilt-android-compiler:2.38.1",
-
-            daggerHiltCompilerK : "com.google.dagger:hilt-compiler:2.37",
-            daggerHiltNavigation: "androidx.hilt:hilt-navigation-compose:1.0.0-alpha03",
-
-            roomRuntime         : "androidx.room:room-runtime:$roomVersion",
-            roomKtx             : "androidx.room:room-ktx:$roomVersion",
-            roomCompiler        : "androidx.room:room-compiler:$roomVersion",
-
-            sandwichNetwork     : "com.github.skydoves:sandwich:$sandwichVersion"
-    ]
-
-    retrofitVersion             = '2.6.0'
-    okhttpVersion               = '4.2.2'
-    gsonVersion                 = '2.8.2'
-
-    dataDependencies = [
-            retrofit            : "com.squareup.retrofit2:retrofit:$retrofitVersion",
-            retrofitMoshi       : "com.squareup.retrofit2:converter-moshi:$retrofitVersion",
-            retrofitGson        : "com.squareup.retrofit2:converter-gson:$retrofitVersion",
-            loggingInterceptor  : "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
-    ]
-}
+        // unit test
+        truthVersion         : '1.0.1',
+        junitVersion         : '4.12',
+        turbineVersion       : '0.2.0',
+        robolectricVersion   : '4.3.1',
+        androidxTest         : '1.3.0',
+        androidxTestJunit    : '1.1.2-rc01',
+        androidTestRunner    : '1.3.0-beta01',
+        mockitoKotlinVersion : '2.2.0',
+        mockitoInlineVersion : '3.3.3'
+]
